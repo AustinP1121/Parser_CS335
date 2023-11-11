@@ -61,12 +61,11 @@ std::vector<std::string> ParserUtilities::ReadTokens()
 
 void ParserUtilities::IncrementBufferIndex()
 {
-	int _currentIndex = ++_tokenBufferCounter;
+	int _currentIndex = _tokenBufferCounter;
 
-	if (_tokenBuffer.size() > _currentIndex)
+	if (_tokenBuffer.size() > ++_currentIndex)
 	{
 		*_tokenBufferCounterPtr += 1;
-		std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 	}
 	else
 	{
@@ -108,8 +107,8 @@ bool ParserUtilities::IsID(std::string _inputToken)
 
 bool ParserUtilities::IsNumber(std::string _inputToken)
 {
-	//regex pattern for number tokens
-	const std::regex _numberPattern("[0-9]+");
+	//regex pattern for number tokens including numbers like 1, 2, 1.0, 45.4443, so on
+	std::regex _numberPattern("[0-9]+[.]?[0-9]*");
 	
 	//if the input token matches the number pattern, return true
 	if (std::regex_match(_inputToken, _numberPattern))
@@ -198,9 +197,8 @@ std::string ParserUtilities::Factor()
 		
 		Expr();
 
-		IncrementBufferIndex();
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
-		
+
 		Match(")", _inputToken);
 		
 		IncrementBufferIndex();
@@ -247,8 +245,8 @@ std::string ParserUtilities::Factor_tail()
 
 std::string ParserUtilities::Term()
 {
-	IncrementBufferIndex();
-
+	//<term> -> <factor> <factor_tail>
+	
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
 
@@ -273,7 +271,7 @@ std::string ParserUtilities::Term()
 
 std::string ParserUtilities::Term_tail()
 {
-	IncrementBufferIndex();
+	//<term_tail> -> <add_op> <term> <term_tail> | epsilon
 
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
@@ -298,7 +296,7 @@ std::string ParserUtilities::Term_tail()
 	}
 	else
 	{
-		//do nothing
+		//epsilon production
 	}
 	
 	return _inputToken;
@@ -306,7 +304,7 @@ std::string ParserUtilities::Term_tail()
 
 std::string ParserUtilities::Expr()
 {
-	IncrementBufferIndex();
+	//<expr> -> <term> <term_tail>
 	
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 	
@@ -344,7 +342,7 @@ std::string ParserUtilities::Stmt()
 
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
 		
-		Match("=", _inputToken);
+		Match(":=", _inputToken);
 
 		IncrementBufferIndex();
 
@@ -428,8 +426,6 @@ void ParserUtilities::Program()
 
 		Stmt_list();
 		
-		IncrementBufferIndex();
-
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
 		
 		Match("$$", _inputToken);
@@ -438,10 +434,5 @@ void ParserUtilities::Program()
 	else
 	{
 		InvokeParseError();
-	}
-	
+	}	
 }
-
-//the problem lies with not updating inputToken after each match
-//becoming too far ahead when incrementing the counter
-//incrementing too much?
