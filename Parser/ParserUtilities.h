@@ -33,11 +33,16 @@ public:
 	ParserUtilities();
 	~ParserUtilities();
 
+	void InvokeParseError();
+
 	//ingests the token from the data file
-	std::vector <std::string> ReadTokens(std::vector <std::string>);
+	std::vector <std::string> ReadTokens();
 	void IncrementBufferIndex();
 
 	std::string Match(std::string, std::string);
+	bool IsID(std::string);
+	bool IsNumber(std::string);
+
 
 	std::string Mult_op();
 	std::string Add_op();
@@ -48,6 +53,8 @@ public:
 	std::string Expr();
 	std::string Stmt();
 	std::string Stmt_list();
+	
+	void Program();
 
 private:
 	
