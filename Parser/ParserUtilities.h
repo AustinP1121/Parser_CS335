@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef STRING_H
 #include <string>
 #endif // !STRING_H
@@ -21,15 +19,9 @@
 #endif // !REGEX_H
 
 
-
 class ParserUtilities
 {
 public:
-	int _tokenBufferCounter = 0;
-	int* _tokenBufferCounterPtr = &_tokenBufferCounter;
-
-	std::vector <std::string> _tokenBuffer;
-
 	ParserUtilities();
 	~ParserUtilities();
 
@@ -56,6 +48,12 @@ public:
 	
 	void Program();
 
+protected: 
+	int _tokenBufferCounter = 0;
+	int* _tokenBufferCounterPtr = &_tokenBufferCounter;
+
+	std::vector <std::string> _tokenBuffer;
+	
 private:
 	
 };

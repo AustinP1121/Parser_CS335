@@ -1,18 +1,5 @@
 #include "ParserUtilities.h"
 
-//grammar: 
-//<program> -> <stmt_list> $$
-//<stmt_list> -> <stmt> <stmt_list> | epsilon
-//<stmt> -> id := <expr> | read id | write <expr>
-//<expr> -> <term> <term_tail>
-//<term_tail> -> <add_op> <term> <term_tail> | epsilon
-//<term> -> <factor> <factor_tail>
-//<factor_tail> -> <mult_op> <factor> <factor_tail> | epsilon
-//<factor> -> ( <expr> ) | id | number
-//<add_op> -> + | -
-//<mult_op> -> * | /
-
-
 ParserUtilities::ParserUtilities()
 {
 	ReadTokens();
@@ -26,7 +13,7 @@ ParserUtilities::~ParserUtilities()
 
 void ParserUtilities::InvokeParseError()
 {
-	std::cout << "\n\nPARSE ERROR AT LINE " << _tokenBufferCounter << "\n\n";
+	std::cout << "\n\nPARSE ERROR AT LINE " << ++_tokenBufferCounter << "\n\n";
 	_ASSERT(false);
 }
 
@@ -164,8 +151,7 @@ std::string ParserUtilities::Add_op()
 
 	else
 	{
-		std::cout << "\n\nPARSE ERROR AT LINE " << _tokenBufferCounter << "\n\n";
-		_ASSERT(false);
+		InvokeParseError();
 	}
 
 	return _inputToken;
