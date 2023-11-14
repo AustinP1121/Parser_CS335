@@ -1,0 +1,67 @@
+
+ Executing Program() Stmt_list() 
+
+Executing Stmt()	Stmt_list()
+Token: read consumed
+Token: A consumed
+
+Executing Stmt()	Stmt_list()
+Token: read consumed
+Token: B consumed
+
+Executing Stmt()	Stmt_list()
+Token: sum consumed
+Token: := consumed
+
+Executing Term()	Term_tail()
+
+Executing Factor()	Factor_tail()
+
+Executing Expr() Token: ( consumed
+
+Executing Term()	Term_tail()
+
+Executing Factor()	Factor_tail()
+Token: A consumed
+
+Executing Add_op()	Term()	Term_tail()
+Token: + consumed
+
+Executing Factor()	Factor_tail()
+Token: B consumed
+Token: ) consumed
+
+Executing Mult_op()		Factor()	Factor_tail()
+Token: * consumed
+Token: 45.325 consumed
+
+Executing Stmt()	Stmt_list()
+Token: write consumed
+
+Executing Expr()
+
+Executing Term()	Term_tail()
+
+Executing Factor()	Factor_tail()
+Token: sum consumed
+
+Executing Stmt()	Stmt_list()
+Token: write consumed
+
+Executing Expr()
+
+Executing Term()	Term_tail()
+
+Executing Factor()	Factor_tail()
+Token: sum consumed
+
+Executing Mult_op()		Factor()	Factor_tail()
+Token: * consumed
+Token: 80.777 consumed
+
+Executing Add_op()	Term()	Term_tail()
+Token: - consumed
+
+Executing Factor()	Factor_tail()
+Token: A consumed
+Token: $$ consumed

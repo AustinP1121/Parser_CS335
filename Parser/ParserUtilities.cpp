@@ -1,10 +1,28 @@
+/*
+* Project: Assignment #4, Parser
+* Author: Austin Pedigo
+* Class: CS-335
+*
+* Description:
+*	Simple bootstrap parser written in C++. This class enables the
+*	parser functionality, which is based on a given LL grammar.
+*/
+
 #include "ParserUtilities.h"
 
 ParserUtilities::ParserUtilities()
 {
+	//read in buffer
 	ReadTokens();
 
+	//open the output file
+	OpenWriteFile();
+
+	//start the program
 	Program();
+
+	//close the output file
+	outFile.close();
 }
 
 ParserUtilities::~ParserUtilities()
@@ -13,7 +31,13 @@ ParserUtilities::~ParserUtilities()
 
 void ParserUtilities::InvokeParseError()
 {
-	std::cout << "\n\nPARSE ERROR AT LINE " << ++_tokenBufferCounter << "\n\n";
+	//displays the error message and halts the program
+	std::string _errorMessage = "\n\nPARSE ERROR AT LINE\n\n";
+
+	outFile << _errorMessage << ++_tokenBufferCounter;
+
+	std::cout << _errorMessage << ++_tokenBufferCounter;
+	
 	_ASSERT(false);
 }
 
@@ -46,14 +70,21 @@ std::vector<std::string> ParserUtilities::ReadTokens()
 	return _tokenBuffer;
 }
 
+void ParserUtilities::OpenWriteFile()
+{
+	outFile.open("../OutputFile.txt");
+}
+
 void ParserUtilities::IncrementBufferIndex()
 {
 	int _currentIndex = _tokenBufferCounter;
-
+	
+	//if the next index is within bounds, continue
 	if (_tokenBuffer.size() > ++_currentIndex)
 	{
 		*_tokenBufferCounterPtr += 1;
 	}
+	//halt program otherwise
 	else
 	{
 		std::cout << "\n\nIncremented counter exceeds the bounds of the buffer\n\n";
@@ -63,8 +94,10 @@ void ParserUtilities::IncrementBufferIndex()
 
 std::string ParserUtilities::Match(std::string _expectedToken, std::string _inputToken)
 {
+	//consume token if it matches the expected one
 	if (_inputToken == _expectedToken)
 	{
+		outFile << "Token: " << _inputToken << " consumed\n";
 		std::cout << "Token: " << _inputToken << " consumed" << "\n";
 	}
 	else
@@ -111,25 +144,28 @@ bool ParserUtilities::IsNumber(std::string _inputToken)
 
 std::string ParserUtilities::Mult_op()
 {
-
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
+	//if it's a multiplication symbol, consume
 	if (_inputToken == "*")
 	{
 		Match("*", _inputToken);
 		IncrementBufferIndex();
 	}
 
+	//if it's a divisor, consume
 	else if (_inputToken == "/")
 	{
 		Match("/", _inputToken);
 		IncrementBufferIndex();
 	}
 
+	//otherwise, parse error
 	else
 	{
 		InvokeParseError();
 	}
+
 	return _inputToken;
 }
 
@@ -137,18 +173,21 @@ std::string ParserUtilities::Add_op()
 {
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
+	//if it's an addition symbol, consume
 	if (_inputToken == "+")
 	{
 		Match("+", _inputToken);
 		IncrementBufferIndex();
 	}
 
+	//if it's a subtraction symbol, consume
 	else if (_inputToken == "-")
 	{
 		Match("-", _inputToken);
 		IncrementBufferIndex();
 	}
 
+	//otherwise, parse error
 	else
 	{
 		InvokeParseError();
@@ -163,21 +202,25 @@ std::string ParserUtilities::Factor()
 
 	if (IsNumber(_inputToken))
 	{
-		std::cout << "Token: " << _inputToken << " consumed" << "\n";
+		Match(_inputToken, _inputToken);
+
 		IncrementBufferIndex();
 	}
 	
 	else if(IsID(_inputToken))
 	{
-		std::cout << "Token: " << _inputToken << " consumed" << "\n";
+		Match(_inputToken, _inputToken);
+
 		IncrementBufferIndex();
 	}
 
 	else if(_inputToken == "(")
 	{
 		std::cout << "\nExecuting Expr() ";
-
+		outFile << "\nExecuting Expr() ";
+		
 		Match("(", _inputToken);
+		
 		IncrementBufferIndex();
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
 		
@@ -206,7 +249,9 @@ std::string ParserUtilities::Factor_tail()
 	if (_inputToken == "*" 
 		|| _inputToken == "/")
 	{
-		std::cout << "\nExecuting Mult_op()	Factor()	Factor_tail()\n";
+		outFile << "\nExecuting Mult_op()		Factor()	Factor_tail()\n";
+		std::cout << "\nExecuting Mult_op()		Factor()	Factor_tail()\n";
+		
 		Mult_op();
 
 		Factor();
@@ -235,13 +280,14 @@ std::string ParserUtilities::Term()
 	
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
-
+	//continue if term conditions are met
 	if (IsID(_inputToken) == true 
 		|| IsNumber(_inputToken) == true 
 		|| _inputToken == "(")
 	{
+		outFile << "\nExecuting Factor()	Factor_tail()\n";
 		std::cout << "\nExecuting Factor()	Factor_tail()\n";
-		
+
 		Factor();
 		
 		Factor_tail();
@@ -261,10 +307,13 @@ std::string ParserUtilities::Term_tail()
 
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
+	//continue if term_tail conditions are met
 	if (_inputToken == "+" 
 		|| _inputToken == "-")
 	{
+		outFile << "\nExecuting Add_op()	Term()	Term_tail()\n";
 		std::cout << "\nExecuting Add_op()	Term()	Term_tail()\n";
+		
 		Add_op();
 
 		Term();
@@ -294,10 +343,12 @@ std::string ParserUtilities::Expr()
 	
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 	
+	//continue if the token is an id, number, or open parentheses
 	if(IsID(_inputToken) == true 
 		|| IsNumber(_inputToken) == true 
 		|| _inputToken == "(") 
 	{
+		outFile << "\nExecuting Term()	Term_tail()\n";
 		std::cout << "\nExecuting Term()	Term_tail()\n";
 		
 		Term();
@@ -319,9 +370,11 @@ std::string ParserUtilities::Stmt()
 
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
+	//continue if the token is an id and it's not read or write
 	if (IsID(_inputToken) == true && _inputToken != "read" && _inputToken != "write")
 	{
-		std::cout << "\nExecuting Match()	Expr()\n";
+		outFile << "\nExecuting Expr()\n";
+		std::cout << "\nExecuting Expr()\n";
 		Match(_inputToken, _inputToken);
 
 		IncrementBufferIndex();
@@ -337,9 +390,9 @@ std::string ParserUtilities::Stmt()
 		Expr();
 	}
 
+	//if the token is read
 	else if (_inputToken == "read")
 	{
-		std::cout << "\nExecuting Match()	Match()\n";
 		Match("read", _inputToken);
 
 		IncrementBufferIndex();
@@ -353,10 +406,13 @@ std::string ParserUtilities::Stmt()
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
 	}
 
+	//if the token is write
 	else if (_inputToken == "write")
 	{
-		std::cout << "\nExecuting Match()	Expr()\n";
 		Match("write", _inputToken);
+		
+		outFile << "\nExecuting Expr()\n";
+		std::cout << "\nExecuting Expr()\n";
 
 		IncrementBufferIndex();
 
@@ -379,11 +435,14 @@ std::string ParserUtilities::Stmt_list()
 		
 	std::string _inputToken = _tokenBuffer[_tokenBufferCounter];
 
+	//continue parse tree if it's an id or read/write
 	if (IsID(_inputToken) == true
 		|| _inputToken == "read"
 		|| _inputToken == "write")
 	{
+		outFile << "\nExecuting Stmt()	Stmt_list()\n";
 		std::cout << "\nExecuting Stmt()	Stmt_list()\n";
+		
 		Stmt();
 
 		Stmt_list();
@@ -408,12 +467,15 @@ void ParserUtilities::Program()
 		|| _inputToken == "write"
 		|| _inputToken == "$$")
 	{
-		std::cout << "\nExecuting Stmt_list()	Match()\n";
-
+		outFile << "\n Executing Program() Stmt_list() \n";
+		std::cout << "\n Executing Program() Stmt_list() \n";
+		
+		//start parse tree
 		Stmt_list();
 		
 		_inputToken = _tokenBuffer[_tokenBufferCounter];
 		
+		//end of parse tree
 		Match("$$", _inputToken);
 		
 	}
